@@ -95,6 +95,13 @@ jobs:
           flutter-version: '3.29.1'
           channel: 'stable'
 
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install
+          pod update
+          cd ..
+
       - name: Flutter Pub Get
         run: flutter pub get
 
