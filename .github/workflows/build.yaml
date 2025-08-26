@@ -1,0 +1,125 @@
+name: Flutter CI (Flavors)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  android:
+    name: Android • ${{ matrix.flavor }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - flavor: dev
+            target: lib/main_dev.dart
+            api: http://dev.example.com
+            appName: Flavor CICD - dev
+            version: 1
+          - flavor: staging
+            target: lib/main_staging.dart
+            api: http://staging.example.com
+            appName: Flavor CICD - staging
+            version: 1
+          - flavor: prod
+            target: lib/main_prod.dart
+            api: https://api.example.com
+            appName: Flavor CICD
+            version: 1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.1'
+          channel: 'stable'
+
+      - name: Flutter Pub Get
+        run: flutter pub get
+
+      - name: Generate Icons (Flavor)
+        run: |
+          dart run flutter_launcher_icons
+
+      - name: Generate Splash (Flavor)
+        run: |
+          dart run flutter_native_splash:create --flavor ${{ matrix.flavor }}
+
+      - name: Build APK (Release)
+        run: |
+          flutter build apk --release \
+            --flavor ${{ matrix.flavor }} \
+            -t ${{ matrix.target }} \
+            --dart-define=BASE_URL=${{ secrets[ matrix.api ] }} \
+            --dart-define=APP_NAME=${{ secrets[ matrix.appName ] }} \
+            --dart-define=VERSION=${{ secrets[ matrix.version ] }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ matrix.flavor }}-apk
+          path: build/app/outputs/flutter-apk/app-${{ matrix.flavor }}-release.apk
+
+  ios:
+    name: iOS • ${{ matrix.flavor }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - flavor: dev
+            target: lib/main_dev.dart
+            api: http://dev.example.com
+            appName: Flavor CICD - dev
+            version: 1
+          - flavor: staging
+            target: lib/main_staging.dart
+            api: http://staging.example.com
+            appName: Flavor CICD - staging
+            version: 1
+          - flavor: prod
+            target: lib/main_prod.dart
+            api: http://api.example.com
+            appName: Flavor CICD
+            version: 1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.1'
+          channel: 'stable'
+
+      - name: Flutter Pub Get
+        run: flutter pub get
+
+      - name: Generate Icons (Flavor)
+        run: |
+          dart run flutter_launcher_icons
+
+      - name: Generate Splash (Flavor)
+        run: |
+          dart run flutter_native_splash:create --flavor ${{ matrix.flavor }}
+
+      - name: Build iOS (No Codesign)
+        run: |
+          flutter build ios --release \
+            --no-codesign \
+            --flavor ${{ matrix.flavor }} \
+            -t ${{ matrix.target }} \
+            --dart-define=BASE_URL=${{ secrets[ matrix.api ] }} \
+            --dart-define=APP_NAME=${{ secrets[ matrix.appName ] }} \
+            --dart-define=VERSION=${{ secrets[matrix.version] }}
+
+      - name: Upload iOS Build (XCArchive/Runner.app)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-${{ matrix.flavor }}-build
+          path: |
+            build/ios/iphoneos/*.xcarchive
+            build/ios/iphoneos/Runner.app

@@ -1,0 +1,70 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Dev (debug mode)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "args": [
+        "--flavor", "dev",
+        "--dart-define", "APP_NAME=Flavor CICD - dev",
+        "--dart-define", "BASE_URL=http://dev.example.com",
+        "--dart-define", "VERSION=2"
+      ]
+    },
+    {
+      "name": "Flutter Staging (debug mode)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_staging.dart",
+      "args": [
+        "--flavor", "staging",
+        "--dart-define", "APP_NAME=Flavor CICD - staging",
+        "--dart-define", "BASE_URL=http://staging.example.com",
+        "--dart-define", "VERSION=2"
+      ]
+    },
+    {
+      "name": "Flutter Production (debug mode)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_prod.dart",
+      "args": [
+        "--flavor", "prod",
+        "--dart-define", "APP_NAME=Flavor CICD",
+        "--dart-define", "BASE_URL=http://api.example.com",
+        "--dart-define", "VERSION=2"
+      ]
+    },
+    {
+      "name": "Flutter Production (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_prod.dart",
+      "args": [
+        "--flavor", "prod",
+        "--dart-define", "APP_NAME=Flavor CICD",
+        "--dart-define", "BASE_URL=http://api.example.com",
+        "--dart-define", "VERSION=2"
+      ],
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Flutter Production (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_prod.dart",
+      "args": [
+        "--flavor", "prod",
+        "--dart-define", "APP_NAME=Flavor CICD",
+        "--dart-define", "BASE_URL=http://api.example.com",
+        "--dart-define", "VERSION=2"
+      ],
+      "flutterMode": "release"
+    }
+  ]
+}
