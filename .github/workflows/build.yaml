@@ -67,7 +67,7 @@ jobs:
   ios:
     name: iOS • ${{ matrix.flavor }}
     # Explicitly use a macOS runner with Xcode 16 for iOS 18 SDK support
-    runs-on: macos-15-xcode-16
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
