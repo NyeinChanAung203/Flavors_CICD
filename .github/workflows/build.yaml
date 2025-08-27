@@ -54,9 +54,9 @@ jobs:
           flutter build apk --release \
             --flavor ${{ matrix.flavor }} \
             -t ${{ matrix.target }} \
-            --dart-define=BASE_URL=${{ secrets[ matrix.api ] }} \
-            --dart-define=APP_NAME=${{ secrets[ matrix.appName ] }} \
-            --dart-define=VERSION=${{ secrets[ matrix.version ] }}
+            --dart-define=BASE_URL=${{ matrix.api }} \
+            --dart-define=APP_NAME=${{ matrix.appName }} \
+            --dart-define=VERSION=${{ matrix.version }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -66,7 +66,8 @@ jobs:
 
   ios:
     name: iOS • ${{ matrix.flavor }}
-    runs-on: macos-latest
+    # Explicitly use a macOS runner with Xcode 16 for iOS 18 SDK support
+    runs-on: macos-15-xcode-16
     strategy:
       fail-fast: false
       matrix:
@@ -83,12 +84,17 @@ jobs:
             version: 1
           - flavor: prod
             target: lib/main_prod.dart
-            api: http://api.example.com
+            api: https://api.example.com
             appName: Flavor CICD
             version: 1
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Show Xcode version for debugging
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
 
       - uses: subosito/flutter-action@v2
         with:
@@ -102,9 +108,8 @@ jobs:
         run: |
           cd ios
           pod install
-          pod update
           cd ..
-
+          
       - name: Generate Icons (Flavor)
         run: |
           dart run flutter_launcher_icons
@@ -119,14 +124,12 @@ jobs:
             --no-codesign \
             --flavor ${{ matrix.flavor }} \
             -t ${{ matrix.target }} \
-            --dart-define=BASE_URL=${{ secrets[ matrix.api ] }} \
-            --dart-define=APP_NAME=${{ secrets[ matrix.appName ] }} \
-            --dart-define=VERSION=${{ secrets[matrix.version] }}
+            --dart-define=BASE_URL=${{ matrix.api }} \
+            --dart-define=APP_NAME=${{ matrix.appName }} \
+            --dart-define=VERSION=${{ matrix.version }}
 
       - name: Upload iOS Build (XCArchive/Runner.app)
         uses: actions/upload-artifact@v4
         with:
           name: ios-${{ matrix.flavor }}-build
-          path: |
-            build/ios/iphoneos/*.xcarchive
-            build/ios/iphoneos/Runner.app
+          path: build/ios/iphoneos
